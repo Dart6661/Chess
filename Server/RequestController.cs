@@ -1,11 +1,11 @@
 ﻿namespace Chess.Server
 {
-    internal class RequestHandler
+    internal class RequestController
     {
         private readonly GameManager gameManager;
         private readonly Dictionary<RequestType, RequestProcessor> messageHandlers;
 
-        internal RequestHandler(GameManager manager)
+        internal RequestController(GameManager manager)
         {
             gameManager = manager;
             messageHandlers = InitializeMessageHandlers();
