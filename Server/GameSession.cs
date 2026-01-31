@@ -43,7 +43,7 @@
 
             replacementTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
             ConnectedUser user = GetMovingUser();
-            List<ResponseElement> responseElements = RequestHandler.DefineFigure(user);
+            List<ResponseElement> responseElements = RequestController.DefineFigure(user);
             await MessageHandler.SendResponse(responseElements);
             return await replacementTcs.Task;
         }

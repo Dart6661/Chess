@@ -2,7 +2,7 @@
 {
     internal class MessageHandler(GameManager manager)
     {
-        private readonly RequestHandler requestHandler = new(manager);
+        private readonly RequestController requestHandler = new(manager);
 
         internal async Task RunAsync(ConnectedUser user, CancellationToken token)
         {
@@ -38,7 +38,7 @@
             }
             catch (Exception ex) when (ex is EmptyRequestException)
             {
-                List<ResponseElement> responseElements = RequestHandler.CreateErrorResponse(null, user, ex.Message);
+                List<ResponseElement> responseElements = RequestController.CreateErrorResponse(null, user, ex.Message);
                 await SendResponse(responseElements);
                 Console.WriteLine();
             }
