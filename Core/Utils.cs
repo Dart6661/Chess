@@ -18,9 +18,6 @@
     }
 
 
-    public delegate Task<Type> UserSelectionOfReplacement();
-
-
     public class ChessMove
     {
         internal List<(int, int, int, int)> whiteMoves = [];
