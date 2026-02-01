@@ -8,8 +8,6 @@ namespace Chess.Core
         internal Dictionary<int, ChessMove> moves = [];
         private readonly Figure?[,] field = new Figure?[8, 8];
 
-        internal UserSelectionOfReplacement SelectFigure = null!;
-
         internal Field(Player whitePlayer, Player blackPlayer)
         {
             List<(int, int, Player)> initialPositions = [
@@ -69,23 +67,23 @@ namespace Chess.Core
             int currentMove = AmountMovesOnField;
             for (; currentMove > numberMove; currentMove--)
             {
-                moves[currentMove].blackMoveAction?.UndoMove(true);
-                moves[currentMove].whiteMoveAction?.UndoMove(true);
+                moves[currentMove].blackMoveAction?.UndoMove(null, true);
+                moves[currentMove].whiteMoveAction?.UndoMove(null, true);
             }
 
             if (playerColor == Color.White) 
-                moves[currentMove].blackMoveAction?.UndoMove(true);
+                moves[currentMove].blackMoveAction?.UndoMove(null, true);
 
             Figure?[,] fieldCopy = GetCopyOfField();
 
             if (playerColor == Color.White)
-                moves[currentMove].blackMoveAction?.ExecuteMove(true);
+                moves[currentMove].blackMoveAction?.ExecuteMove(null, true);
 
             currentMove++;
             for (; currentMove <= AmountMovesOnField; currentMove++)
             {
-                moves[currentMove]?.whiteMoveAction?.ExecuteMove(true);
-                moves[currentMove]?.blackMoveAction?.ExecuteMove(true);
+                moves[currentMove]?.whiteMoveAction?.ExecuteMove(null, true);
+                moves[currentMove]?.blackMoveAction?.ExecuteMove(null, true);
             }
 
             return fieldCopy;
@@ -144,13 +142,6 @@ namespace Chess.Core
                 moves[AmountMovesOnField].SetMove(coordinates, moveAction, Color.White);
             }
             else moves[AmountMovesOnField].SetMove(coordinates, moveAction, Color.Black);
-        }
-
-        internal bool SelectionMethodIsSet()
-        {
-            if (SelectFigure == null) 
-                throw new ReplacementException("selection method not assigned");
-            return true;
         }
 
         private void InitializeFigure(Type figureType, int x, int y, Player player)

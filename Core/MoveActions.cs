@@ -1,14 +1,14 @@
 ﻿namespace Chess.Core
 {
-    abstract class MoveAction(Figure figure, int x, int y, Field field)
+    internal abstract class MoveAction(Figure figure, int x, int y, Field field)
     {
         protected Field field = field;
         protected Figure figure = figure;
         protected int x = x;
         protected int y = y;
 
-        internal abstract void ExecuteMove(bool isReplay = false);
-        internal abstract void UndoMove(bool isReplay = false);
+        internal abstract void ExecuteMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false);
+        internal abstract void UndoMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false);
     }
 
 
@@ -25,7 +25,7 @@
             takenFigure = field.GetCell(x, y);
         }
 
-        internal override void ExecuteMove(bool isReplay = false)
+        internal override void ExecuteMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
         {
             takenFigure?.RemoveFromPlayer();
             field.Reposition(takerX, takerY, x, y, isReplay);
@@ -33,7 +33,7 @@
                 field.AddMove([(takerX, takerY, x, y)], this);
         }
 
-        internal override void UndoMove(bool isReplay = false)
+        internal override void UndoMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
         {
             field.Reposition(x, y, takerX, takerY, isReplay);
             field.ChangeCell(x, y, takenFigure);
@@ -57,7 +57,7 @@
             originalRookX = (newRookX == kingX + 1) ? kingX + 3 : kingX - 4;
         }
 
-        internal override void ExecuteMove(bool isReplay = false)
+        internal override void ExecuteMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
         {
             field.Reposition(kingX, bothY, x, y, isReplay);
             field.Reposition(originalRookX, bothY, newRookX, bothY, isReplay);
@@ -65,7 +65,7 @@
                 field.AddMove([(kingX, bothY, x, y), (originalRookX, bothY, newRookX, bothY)], this);
         }
 
-        internal override void UndoMove(bool isReplay = false)
+        internal override void UndoMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
         {
             field.Reposition(newRookX, bothY, originalRookX, bothY, isReplay);
             field.Reposition(x, y, kingX, bothY, isReplay);
@@ -88,7 +88,7 @@
             takenPawn = field.GetCell(takenX, bothY)!;
         }
 
-        internal override void ExecuteMove(bool isReplay = false)
+        internal override void ExecuteMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
         {
             takenPawn.RemoveFromPlayer();
             field.ChangeCell(takenX, bothY, null);
@@ -97,7 +97,7 @@
                 field.AddMove([(takerX, bothY, x, y)], this);
         }
 
-        internal override void UndoMove(bool isReplay = false)
+        internal override void UndoMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
         {
             field.Reposition(x, y, takerX, bothY, isReplay);
             field.ChangeCell(takenX, bothY, takenPawn);
@@ -120,14 +120,13 @@
             takenFigure = field.GetCell(x, y);
         }
 
-        internal override void ExecuteMove(bool isReplay = false)
+        internal override void ExecuteMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
         {
             if (!isReplay)
             {
-                Type newFigureType = field.SelectFigure().GetAwaiter().GetResult();
-                if (!Figure.GetTypeOfReplacementFigures().Contains(newFigureType))
-                    throw new ReplacementException("the choice is incorrect");
-
+                ReplacementOption? replacementOption = (moveOptions?.OfType<ReplacementOption>().FirstOrDefault()) ?? throw new ReplacementException("replacement option not provided");
+                Type newFigureType = replacementOption.SelectedFigure;
+                if (!Figure.GetTypeOfReplacementFigures().Contains(newFigureType)) throw new ReplacementException("the choice is incorrect");
                 newFigure = Activator.CreateInstance(newFigureType, x, y, figure.Owner) as Figure ?? throw new ReplacementException("failed replacement");
             }
             
@@ -147,7 +146,7 @@
                 field.AddMove([(pawnX, pawnY, x, y)], this);
         }
 
-        internal override void UndoMove(bool isReplay = false)
+        internal override void UndoMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
         {
             field.Reposition(x, y, pawnX, pawnY, isReplay);
             field.ChangeCell(x, y, takenFigure);
