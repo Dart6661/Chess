@@ -243,7 +243,7 @@
                 && MoveValidator.PathIsClear(cells, field) && MoveValidator.CellIsSafeAfterMove(king.A, king.B, this, x, y, field);
             bool move = f == null && CheckMove(x, y) && MoveValidator.CellIsSafeAfterMove(king.A, king.B, this, x, y, field);
             bool take = f != null && Color != f.Color && CheckTake(x, y) && MoveValidator.CellIsSafeAfterMove(king.A, king.B, this, x, y, field);
-            bool replacement = (move || take) && (Color == Color.White && y == 7 || Color == Color.Black && y == 0) && field.SelectionMethodIsSet();
+            bool replacement = (move || take) && (Color == Color.White && y == 7 || Color == Color.Black && y == 0);
             bool takeOnPassage = f == null && CheckTake(x, y) && (Color == Color.White && B == 4 || Color == Color.Black && B == 3) 
                 && MoveValidator.IsValidTakeOnPassage(this, x, field) && MoveValidator.CellIsSafeAfterMove(king.A, king.B, this, x, y, field);
             if (replacement) return new ReplacementMoveAction(this, x, y, field);
