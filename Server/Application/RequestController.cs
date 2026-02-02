@@ -174,7 +174,7 @@
             ChessMoveDto move = RequestValidator.GetData<ChessMoveDto>(request.Data);
             try
             {
-                session.GameHandler.MakeMove(move.A, move.B, move.X, move.Y, move.Options);
+                session.GameHandler.MakeMove(move.A, move.B, move.X, move.Y, [..move.Options]);
                 ResponseDto responseToMovingPlayer = new()
                 {
                     Id = request.Id,

@@ -17,7 +17,7 @@
             EndTime = null;
         }
 
-        public void MakeMove(int a, int b, int x, int y, IEnumerable<MoveOption>? moveOptions = null)
+        public void MakeMove(int a, int b, int x, int y, params MoveOption[] moveOptions)
         {
             try
             {
@@ -25,7 +25,7 @@
                 Player defendingPlayer = GetDefendingPlayer();
                 MoveValidator.IsValidMove(a, b, x, y, movingPlayer.Color, field);
                 Figure f = field.GetCell(a, b)!;
-                Move(f, x, y, moveOptions);
+                Move(f, x, y, [..moveOptions]);
                 movingPlayer.AmountMovesOfPlayer++;
                 MoveValidator.IsEndOfGame(defendingPlayer, field);
             }
@@ -37,10 +37,10 @@
 
         public Player GetDefendingPlayer() => (whitePlayer.AmountMovesOfPlayer > blackPlayer.AmountMovesOfPlayer) ? whitePlayer : blackPlayer;
 
-        private void Move(Figure figure, int x, int y, IEnumerable<MoveOption>? moveOptions = null)
+        private void Move(Figure figure, int x, int y, params MoveOption[] moveOptions)
         {
             MoveAction? moveAction = figure.CheckMovement(x, y, field);
-            moveAction?.ExecuteMove(moveOptions);
+            moveAction?.ExecuteMove([..moveOptions]);
         }
     }
 }

@@ -67,23 +67,23 @@ namespace Chess.Core
             int currentMove = AmountMovesOnField;
             for (; currentMove > numberMove; currentMove--)
             {
-                moves[currentMove].blackMoveAction?.UndoMove(null, true);
-                moves[currentMove].whiteMoveAction?.UndoMove(null, true);
+                moves[currentMove].blackMoveAction?.UndoMove(true);
+                moves[currentMove].whiteMoveAction?.UndoMove(true);
             }
 
             if (playerColor == Color.White) 
-                moves[currentMove].blackMoveAction?.UndoMove(null, true);
+                moves[currentMove].blackMoveAction?.UndoMove(true);
 
             Figure?[,] fieldCopy = GetCopyOfField();
 
             if (playerColor == Color.White)
-                moves[currentMove].blackMoveAction?.ExecuteMove(null, true);
+                moves[currentMove].blackMoveAction?.ExecuteMove(true);
 
             currentMove++;
             for (; currentMove <= AmountMovesOnField; currentMove++)
             {
-                moves[currentMove]?.whiteMoveAction?.ExecuteMove(null, true);
-                moves[currentMove]?.blackMoveAction?.ExecuteMove(null, true);
+                moves[currentMove]?.whiteMoveAction?.ExecuteMove(true);
+                moves[currentMove]?.blackMoveAction?.ExecuteMove(true);
             }
 
             return fieldCopy;

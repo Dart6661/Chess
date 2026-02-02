@@ -7,8 +7,14 @@
         protected int x = x;
         protected int y = y;
 
-        internal abstract void ExecuteMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false);
-        internal abstract void UndoMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false);
+        internal abstract void ExecuteMove(bool isReplay = false, params MoveOption[] moveOptions);
+
+        internal void ExecuteMove(MoveOption[] moveOptions)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal abstract void UndoMove(bool isReplay = false, params MoveOption[] moveOptions);
     }
 
 
@@ -25,7 +31,7 @@
             takenFigure = field.GetCell(x, y);
         }
 
-        internal override void ExecuteMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
+        internal override void ExecuteMove(bool isReplay = false, params MoveOption[] moveOptions)
         {
             takenFigure?.RemoveFromPlayer();
             field.Reposition(takerX, takerY, x, y, isReplay);
@@ -33,7 +39,7 @@
                 field.AddMove([(takerX, takerY, x, y)], this);
         }
 
-        internal override void UndoMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
+        internal override void UndoMove(bool isReplay = false, params MoveOption[] moveOptions)
         {
             field.Reposition(x, y, takerX, takerY, isReplay);
             field.ChangeCell(x, y, takenFigure);
@@ -57,7 +63,7 @@
             originalRookX = (newRookX == kingX + 1) ? kingX + 3 : kingX - 4;
         }
 
-        internal override void ExecuteMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
+        internal override void ExecuteMove(bool isReplay = false, params MoveOption[] moveOptions)
         {
             field.Reposition(kingX, bothY, x, y, isReplay);
             field.Reposition(originalRookX, bothY, newRookX, bothY, isReplay);
@@ -65,7 +71,7 @@
                 field.AddMove([(kingX, bothY, x, y), (originalRookX, bothY, newRookX, bothY)], this);
         }
 
-        internal override void UndoMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
+        internal override void UndoMove(bool isReplay = false, params MoveOption[] moveOptions)
         {
             field.Reposition(newRookX, bothY, originalRookX, bothY, isReplay);
             field.Reposition(x, y, kingX, bothY, isReplay);
@@ -88,7 +94,7 @@
             takenPawn = field.GetCell(takenX, bothY)!;
         }
 
-        internal override void ExecuteMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
+        internal override void ExecuteMove(bool isReplay = false, params MoveOption[] moveOptions)
         {
             takenPawn.RemoveFromPlayer();
             field.ChangeCell(takenX, bothY, null);
@@ -97,7 +103,7 @@
                 field.AddMove([(takerX, bothY, x, y)], this);
         }
 
-        internal override void UndoMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
+        internal override void UndoMove(bool isReplay = false, params MoveOption[] moveOptions)
         {
             field.Reposition(x, y, takerX, bothY, isReplay);
             field.ChangeCell(takenX, bothY, takenPawn);
@@ -120,7 +126,7 @@
             takenFigure = field.GetCell(x, y);
         }
 
-        internal override void ExecuteMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
+        internal override void ExecuteMove(bool isReplay = false, params MoveOption[] moveOptions)
         {
             if (!isReplay)
             {
@@ -146,7 +152,7 @@
                 field.AddMove([(pawnX, pawnY, x, y)], this);
         }
 
-        internal override void UndoMove(IEnumerable<MoveOption>? moveOptions = null, bool isReplay = false)
+        internal override void UndoMove(bool isReplay = false, params MoveOption[] moveOptions)
         {
             field.Reposition(x, y, pawnX, pawnY, isReplay);
             field.ChangeCell(x, y, takenFigure);
