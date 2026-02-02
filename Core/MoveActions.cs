@@ -124,7 +124,7 @@
         {
             if (!isReplay)
             {
-                ReplacementOption? replacementOption = (moveOptions?.OfType<ReplacementOption>().FirstOrDefault()) ?? throw new ReplacementException("replacement option not provided");
+                ReplacementOption? replacementOption = moveOptions?.OfType<ReplacementOption>()?.FirstOrDefault() ?? throw new OptionException("replacement option not provided");
                 Type newFigureType = replacementOption.SelectedFigure;
                 if (!Figure.GetTypeOfReplacementFigures().Contains(newFigureType)) throw new ReplacementException("the choice is incorrect");
                 newFigure = Activator.CreateInstance(newFigureType, x, y, figure.Owner) as Figure ?? throw new ReplacementException("failed replacement");
