@@ -25,6 +25,7 @@
         WaitCancelled,
         MoveApplied,
         MoveRejected,
+        OptionsRequired,
         DefineFigure,
         FigureSelected,
         SessionUpdated,
