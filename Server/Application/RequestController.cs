@@ -174,7 +174,7 @@
             ChessMoveDto move = RequestValidator.GetData<ChessMoveDto>(request.Data);
             try
             {
-                session.GameHandler.MakeMove(move.A, move.B, move.X, move.Y);
+                session.GameHandler.MakeMove(move.A, move.B, move.X, move.Y, move.Options);
                 ResponseDto responseToMovingPlayer = new()
                 {
                     Id = request.Id,
@@ -194,6 +194,19 @@
                 };
                 responseElements.Add(new ResponseElement(responseToMovingPlayer, connectedUser));
                 responseElements.Add(new ResponseElement(responseToDefendingPlayer, otherUser));
+            }
+            catch (OptionException ex)
+            {
+                ResponseDto response = new()
+                {
+                    Id = request.Id,
+                    Status = Status.ERROR,
+                    Type = ResponseType.OptionsRequired,
+                    SessionId = session.Id,
+                    Message = ex.Message,
+                    Data = JsonHandler.Serialize(Serializer.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(connectedUser).Color))
+                };
+                responseElements.Add(new ResponseElement(response, connectedUser));
             }
             catch (Exception ex) when (
                 ex is InputException ||
