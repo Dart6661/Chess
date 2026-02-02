@@ -258,36 +258,12 @@
             return responseElements;
         }
 
-        private List<ResponseElement> FigureSelection(RequestDto request, ConnectedUser connectedUser)
-        {
-            GameSession session = connectedUser.Session ?? throw new InvalidRequestException("the user does not have an active session");
-            if (connectedUser != session.GetMovingUser()) throw new InvalidRequestException("it is not your turn");
-            RequestValidator.CheckRequestType(request, RequestType.FigureSelection);
-
-            List<ResponseElement> responseElements = [];
-            ReplacementDataDto replacementDataDto = RequestValidator.GetData<ReplacementDataDto>(request.Data); ;
-            session.SetReplacement(replacementDataDto.NewFigureType);
-
-            ResponseDto response = new()
-            {
-                Id = request.Id,
-                Status = Status.OK,
-                Type = ResponseType.FigureSelected,
-                SessionId = session.Id,
-                Message = "the figure is selected"
-            };
-            responseElements.Add(new ResponseElement(response, connectedUser));
-            return responseElements; 
-        }
-
         private List<ResponseElement> AbortSession(RequestDto request, ConnectedUser connectedUser)
         {
             RequestValidator.CheckRequestType(request, RequestType.AbortSession);
             List<ResponseElement> responseElements = [];
             GameSession session = connectedUser.Session ?? throw new InvalidRequestException("the type of action is incorrect");
             ConnectedUser otherUser = session.GetOtherUser(connectedUser);
-            connectedUser.Session.CancelReplacement();
-            otherUser.Session!.CancelReplacement();
             connectedUser.Session = null;
             otherUser.Session = null;
             gameManager.RemoveSession(session);
@@ -323,7 +299,6 @@
                 { RequestType.Play, Play },
                 { RequestType.CancelWaiting, CancelWaiting },
                 { RequestType.MakeMove, MakeMove },
-                { RequestType.FigureSelection, FigureSelection },
                 { RequestType.AbortSession, AbortSession }
             };
         }

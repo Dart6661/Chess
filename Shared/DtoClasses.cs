@@ -8,8 +8,6 @@
     
     public record FigureDto(int A, int B, int AmountMovesOfFigure, FigureType Title, Color Color);
 
-    public record ReplacementDataDto(string NewFigureType);
-
     public record PlayerDto(int AmountMovesOfPlayer, Color Color);
 
     public record FieldDto(List<FigureDto> Figures, int AmountMovesOnField);
