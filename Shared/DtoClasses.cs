@@ -4,7 +4,7 @@
 
     public record UserIdDto(string UserId);
     
-    public record ChessMoveDto(int A, int B, int X, int Y, MoveOption? Option = null);
+    public record ChessMoveDto(int A, int B, int X, int Y, IEnumerable<MoveOption>? Options = null);
     
     public record FigureDto(int A, int B, int AmountMovesOfFigure, FigureType Title, Color Color);
 
