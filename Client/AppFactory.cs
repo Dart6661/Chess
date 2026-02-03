@@ -11,7 +11,7 @@ namespace Chess.Client.Cli
 
             var serverApi = new ServerApi(connection, responseHandler);
             var receivingCts = new CancellationTokenSource();
-            await serverApi.ConnectToServer(receivingCts.Token);
+            await serverApi.ConnectToServerAsync(receivingCts.Token);
 
             var userData = await serverApi.GetUserDataAsync();
             var playerState = new PlayerState(userData.UserId);

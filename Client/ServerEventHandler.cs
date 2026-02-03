@@ -46,19 +46,6 @@
             return new SessionUpdatedEventData(responseDto.Message, gameHandlerDto);
         }
 
-        private ServerEventData DefineFigure(ResponseDto responseDto)
-        {
-            if (responseDto.Status != Status.OK ||
-                responseDto.Type != ResponseType.DefineFigure ||
-                playerState.Session == null ||
-                responseDto.SessionId == null ||
-                responseDto.SessionId != playerState.Session.Id)
-            {
-                throw new InvalidResponseException(responseDto.Message);
-            }
-            return new DefineFigureEventData(responseDto.Message);
-        }
-
         private ServerEventData SessionInterrupted(ResponseDto responseDto)
         {
             if (responseDto.Status != Status.OK ||
@@ -107,7 +94,6 @@
             {
                 { ResponseType.RandomSessionStarted,  RandomSessionStarted},
                 { ResponseType.SessionUpdated, SessionUpdated},
-                { ResponseType.DefineFigure, DefineFigure},
                 { ResponseType.SessionInterrupted,  SessionInterrupted},
                 { ResponseType.SessionEnded, SessionEnded},
                 { ResponseType.UserDisconnected, UserDisconnected}

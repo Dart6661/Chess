@@ -25,7 +25,6 @@
         MoveApplied,
         MoveRejected,
         OptionsRequired,
-        DefineFigure,
         SessionUpdated,
         SessionInterrupted,
         SessionEnded,

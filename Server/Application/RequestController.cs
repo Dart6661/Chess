@@ -63,19 +63,6 @@
             return [new ResponseElement(responseDto, user)];
         }
 
-        internal static List<ResponseElement> DefineFigure(ConnectedUser user)
-        {
-            GameSession sesssion = user.Session ?? throw new InvalidRequestException("the user does not have an active session");
-            ResponseDto responseDto = new()
-            {
-                Status = Status.OK,
-                Type = ResponseType.DefineFigure,
-                SessionId = sesssion.Id,
-                Message = "select a replacement figure"
-            };
-            return [new ResponseElement(responseDto, user)];
-        }
-
         private List<ResponseElement> GetUserData(RequestDto request, ConnectedUser connectedUser)
         {
             RequestValidator.CheckRequestType(request, RequestType.GetUserData);
@@ -130,7 +117,7 @@
                     Type = ResponseType.RandomSessionStarted,
                     SessionId = session.Id,
                     Message = "connection is established",
-                    Data = JsonHandler.Serialize(Serializer.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(connectedUser).Color))
+                    Data = JsonHandler.Serialize(Mapper.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(connectedUser).Color))
                 };
                 ResponseDto responseToOtherUser = new()
                 {
@@ -138,7 +125,7 @@
                     Type = ResponseType.RandomSessionStarted,
                     SessionId = session.Id,
                     Message = "connection is established",
-                    Data = JsonHandler.Serialize(Serializer.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(otherUser).Color))
+                    Data = JsonHandler.Serialize(Mapper.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(otherUser).Color))
                 };
                 responseElements.Add(new ResponseElement(responseToConnectedUser, connectedUser));
                 responseElements.Add(new ResponseElement(responseToOtherUser, otherUser));
@@ -174,7 +161,7 @@
             ChessMoveDto move = RequestValidator.GetData<ChessMoveDto>(request.Data);
             try
             {
-                session.GameHandler.MakeMove(move.A, move.B, move.X, move.Y, [..move.Options]);
+                session.GameHandler.MakeMove(move.A, move.B, move.X, move.Y, [.. move.Options.Select(Mapper.DtoToMoveOption)]);
                 ResponseDto responseToMovingPlayer = new()
                 {
                     Id = request.Id,
@@ -182,7 +169,7 @@
                     Status = Status.OK,
                     SessionId = session.Id,
                     Message = "the move was made",
-                    Data = JsonHandler.Serialize(Serializer.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(connectedUser).Color))
+                    Data = JsonHandler.Serialize(Mapper.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(connectedUser).Color))
                 };
                 ResponseDto responseToDefendingPlayer = new()
                 {
@@ -190,7 +177,7 @@
                     Type = ResponseType.SessionUpdated,
                     SessionId = session.Id,
                     Message = "the session has been updated",
-                    Data = JsonHandler.Serialize(Serializer.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(otherUser).Color))
+                    Data = JsonHandler.Serialize(Mapper.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(otherUser).Color))
                 };
                 responseElements.Add(new ResponseElement(responseToMovingPlayer, connectedUser));
                 responseElements.Add(new ResponseElement(responseToDefendingPlayer, otherUser));
@@ -200,11 +187,11 @@
                 ResponseDto response = new()
                 {
                     Id = request.Id,
-                    Status = Status.ERROR,
+                    Status = Status.OK,
                     Type = ResponseType.OptionsRequired,
                     SessionId = session.Id,
                     Message = ex.Message,
-                    Data = JsonHandler.Serialize(Serializer.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(connectedUser).Color))
+                    Data = JsonHandler.Serialize(Mapper.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(connectedUser).Color))
                 };
                 responseElements.Add(new ResponseElement(response, connectedUser));
             }
@@ -220,7 +207,7 @@
                     Type = ResponseType.MoveRejected,
                     SessionId = session.Id,
                     Message = ex.Message,
-                    Data = JsonHandler.Serialize(Serializer.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(connectedUser).Color))
+                    Data = JsonHandler.Serialize(Mapper.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(connectedUser).Color))
                 };
                 responseElements.Add(new ResponseElement(response, connectedUser));
             }
@@ -242,7 +229,7 @@
                     Type = ResponseType.SessionEnded,
                     SessionId = session.Id,
                     Message = ex.Message,
-                    Data = JsonHandler.Serialize(Serializer.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(connectedUser).Color))
+                    Data = JsonHandler.Serialize(Mapper.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(connectedUser).Color))
                 };
                 ResponseDto responseToDefendingPlayer = new()
                 {
@@ -250,7 +237,7 @@
                     Type = ResponseType.SessionEnded,
                     SessionId = session.Id,
                     Message = ex.Message,
-                    Data = JsonHandler.Serialize(Serializer.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(otherUser).Color))
+                    Data = JsonHandler.Serialize(Mapper.GameHandlerToDto(session.GameHandler, session.WhitePlayer.Id, session.BlackPlayer.Id, session.GetPlayer(otherUser).Color))
                 };
                 responseElements.Add(new ResponseElement(responseToMovingPlayer, connectedUser));
                 responseElements.Add(new ResponseElement(responseToDefendingPlayer, otherUser));

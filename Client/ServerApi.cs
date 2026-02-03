@@ -11,7 +11,7 @@
             this.responseHandler = responseHandler;
         }
 
-        internal async Task ConnectToServer(CancellationToken ct)
+        internal async Task ConnectToServerAsync(CancellationToken ct)
         {
             await connection.Connect();
             _ = responseHandler.ReceiveAsync(ct);
@@ -53,7 +53,7 @@
             return ((string, Color, Color, string, GameHandlerDto))(responseDto.SessionId!, gameHandlerDto.ColorOfCurrentPlayer, otherPlayerColor, otherPlayerId, gameHandlerDto);
         }
 
-        internal async Task<bool> CancelWaiting()
+        internal async Task<bool> CancelWaitingAsync()
         {
             RequestDto requestDto = new() { Type = RequestType.CancelWaiting };
             ResponseDto responseDto = await CreateTaskAndSend(requestDto).Task;
@@ -66,14 +66,15 @@
             return true;
         }
 
-        internal async Task<(GameHandlerDto, bool)> MakeMove(string sessionId, (int A, int B) oldCoord, (int X, int Y) newCoord )
+        internal async Task<(GameHandlerDto, bool, bool)> MakeMoveAsync(string sessionId, (int A, int B) oldCoord, (int X, int Y) newCoord, string? figureType = null)
         {
-            string data = JsonHandler.Serialize(new ChessMoveDto(oldCoord.A, oldCoord.B, newCoord.X, newCoord.Y));
+            string data = JsonHandler.Serialize(new ChessMoveDto(oldCoord.A, oldCoord.B, newCoord.X, newCoord.Y, figureType != null ? [new ReplacementOptionDto(figureType)] : []));
             RequestDto requestDto = new() { Type = RequestType.MakeMove, SessionId = sessionId, Data = data };
             ResponseDto responseDto = await CreateTaskAndSend(requestDto).Task;
             if (responseDto.Id != requestDto.Id ||
                 responseDto.Status != Status.OK ||
                 responseDto.Type != ResponseType.MoveApplied &&
+                responseDto.Type != ResponseType.OptionsRequired &&
                 responseDto.Type != ResponseType.SessionEnded ||
                 responseDto.SessionId != sessionId ||
                 responseDto.Data == null)
@@ -82,26 +83,12 @@
             }
             GameHandlerDto gameHandlerDto = JsonHandler.Deserialize<GameHandlerDto>(responseDto.Data);
             if (gameHandlerDto.ColorOfCurrentPlayer == null) throw new InvalidResponseException(responseDto.Message);
-            bool sessionEnded = (responseDto.Type == ResponseType.SessionEnded);
-            return (gameHandlerDto, sessionEnded);
-        }
-        
-        internal async Task<bool> FigureSelection(string sessionId, string newFigureType)
-        {
-            string data = JsonHandler.Serialize(new ReplacementDataDto(newFigureType));
-            RequestDto requestDto = new() { Type = RequestType.FigureSelection, SessionId = sessionId, Data = data };
-            ResponseDto responseDto = await CreateTaskAndSend(requestDto).Task;
-            if (responseDto.Id != requestDto.Id ||
-                responseDto.Status != Status.OK ||
-                responseDto.Type != ResponseType.FigureSelected ||
-                responseDto.SessionId != sessionId)
-            {
-                throw new InvalidResponseException(responseDto.Message);
-            }
-            return true;
+            bool optionsRequired = responseDto.Type == ResponseType.OptionsRequired;
+            bool sessionEnded = responseDto.Type == ResponseType.SessionEnded;
+            return (gameHandlerDto, optionsRequired, sessionEnded);
         }
 
-        internal async Task<bool> AbortSession(string sessionId)
+        internal async Task<bool> AbortSessionAsync(string sessionId)
         {
             RequestDto requestDto = new() { Type = RequestType.AbortSession, SessionId = sessionId };
             ResponseDto responseDto = await CreateTaskAndSend(requestDto).Task;

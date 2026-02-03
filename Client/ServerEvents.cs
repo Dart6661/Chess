@@ -6,8 +6,6 @@
 
     internal record SessionUpdatedEventData(string? Message, GameHandlerDto GameHandlerDto) : ServerEventData(Message);
 
-    internal record DefineFigureEventData(string? Message) : ServerEventData(Message);
-
     internal record SessionInterruptedEventData(string? Message) : ServerEventData(Message);
 
     internal record SessionEndedEventData(string? Message, GameHandlerDto GameHandlerDto) : ServerEventData(Message);

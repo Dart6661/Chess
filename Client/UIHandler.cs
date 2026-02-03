@@ -75,7 +75,7 @@ namespace Chess.Client.Cli
         internal void Clear() => Console.Clear();
 
         private async Task<string?> ReadLineAsync(CancellationToken token)
-        {
+        {            
             StringBuilder sb = new();
 
             while (true)

@@ -118,9 +118,22 @@
 
         private async Task<Menu?> MakeMove()
         {
+            GameHandlerDto gameHandlerDto;
+            bool optionsRequired;
+            bool sessionEnded;
             string? input = await Context.UIHandler.ReadMoveInput(readingTcs.Token);
             (int A, int B, int X, int Y) = MoveHandler.ProcessMove(input);
-            (GameHandlerDto gameHandlerDto, bool sessionEnded) = await Context.ServerApi.MakeMove(Context.PlayerState.Session!.Id, (A, B), (X, Y));
+            (gameHandlerDto, optionsRequired, sessionEnded) = await Context.ServerApi.MakeMoveAsync(Context.PlayerState.Session!.Id, (A, B), (X, Y));
+            if (optionsRequired)
+            {
+                Dictionary<int, (string title, string type)> replacementFigures = GetReplacementFiguresDictionary();
+                int figureNumber = await Context.UIHandler.ReadReplacementFigureSelection(replacementFigures, readingTcs.Token);
+                if (!replacementFigures.TryGetValue(figureNumber, out (string title, string type) _))
+                    throw new ItemNotFoundException();
+
+                string figureType = replacementFigures[figureNumber].type;
+                (gameHandlerDto, optionsRequired, sessionEnded) = await Context.ServerApi.MakeMoveAsync(Context.PlayerState.Session!.Id, (A, B), (X, Y), figureType);
+            }
             Context.PlayerState.Session.UpdateSession(gameHandlerDto);
             Context.UIHandler.Clear();
             if (sessionEnded)
@@ -143,7 +156,7 @@
         private async Task<Menu?> Back()
         {
             Context.UIHandler.Clear();
-            bool interruptionSuccess = await Context.ServerApi.AbortSession(Context.PlayerState.Session!.Id);
+            bool interruptionSuccess = await Context.ServerApi.AbortSessionAsync(Context.PlayerState.Session!.Id);
             if (interruptionSuccess)
             {
                 Context.PlayerState.Status = PlayerStatus.Idle;
@@ -165,33 +178,6 @@
             Context.UIHandler.DisplayMessage(eventData.Message);
             Context.UIHandler.DisplayField(Context.PlayerState.Session.Figures, Context.PlayerState.Session.OwnColor);
             return typeof(GameMenu);
-        }
-
-        private async Task HandleDefineFigureEven(DefineFigureEventData eventData)
-        {
-            Dictionary<int, (string title, string type)> replacementFigures = GetReplacementFiguresDictionary();
-            int figureNumber = await Context.UIHandler.ReadReplacementFigureSelection(replacementFigures, readingTcs.Token);
-            if (!replacementFigures.TryGetValue(figureNumber, out (string title, string type) _))
-                throw new ItemNotFoundException();
-
-            string figureType = replacementFigures[figureNumber].type;
-            bool figureSelectionSuccess = await Context.ServerApi.FigureSelection(Context.PlayerState.Session!.Id, figureType);
-            if (!figureSelectionSuccess) Context.UIHandler.DisplayMessage(eventData.Message);
-
-            static Dictionary<int, (string, string)> GetReplacementFiguresDictionary()
-            {
-                return Figure.GetTypeOfReplacementFigures()
-                    .Select((type, index) => new
-                    {
-                        Index = index + 1,
-                        Name = type.Name.ToLower(),
-                        FullName = type.AssemblyQualifiedName!
-                    })
-                    .ToDictionary(
-                        x => x.Index,
-                        x => (x.Name, x.FullName)
-                    );
-            }
         }
 
         private Type HandleSessionInterrupted(SessionInterruptedEventData eventData)
@@ -229,7 +215,6 @@
             switch (serverEventData) 
             {
                 case SessionUpdatedEventData eventData: menuType = HandleSessionUpdatedEvent(eventData); break;
-                case DefineFigureEventData eventData: await HandleDefineFigureEven(eventData); break;
                 case SessionInterruptedEventData eventData: menuType = HandleSessionInterrupted(eventData); break;
                 case SessionEndedEventData eventData: menuType = HandleSessionEndedEvent(eventData); break;
                 case UserDisconnectedEventData eventData: menuType = HandleUserDisconnected(eventData); break;
@@ -246,6 +231,21 @@
                 { 2, ("leave the game", Back) }
             };
         }
+
+        private static Dictionary<int, (string, string)> GetReplacementFiguresDictionary()
+                {
+                    return Figure.GetTypeOfReplacementFigures()
+                        .Select((type, index) => new
+                        {
+                            Index = index + 1,
+                            Name = type.Name.ToLower(),
+                            FullName = type.AssemblyQualifiedName!
+                        })
+                        .ToDictionary(
+                            x => x.Index,
+                            x => (x.Name, x.FullName)
+                        );
+                }
     }
 
 
@@ -260,7 +260,7 @@
         {
             Context.UIHandler.Clear();
             Context.PlayerState.Status = PlayerStatus.Idle;
-            bool cancellationSuccess = await Context.ServerApi.CancelWaiting();
+            bool cancellationSuccess = await Context.ServerApi.CancelWaitingAsync();
             if (cancellationSuccess) return new MainMenu(Context);
             else
             {

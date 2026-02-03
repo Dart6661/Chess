@@ -9,11 +9,6 @@
 
         internal abstract void ExecuteMove(bool isReplay = false, params MoveOption[] moveOptions);
 
-        internal void ExecuteMove(MoveOption[] moveOptions)
-        {
-            throw new NotImplementedException();
-        }
-
         internal abstract void UndoMove(bool isReplay = false, params MoveOption[] moveOptions);
     }
 

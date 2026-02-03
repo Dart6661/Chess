@@ -1,6 +1,6 @@
 ﻿namespace Chess.Shared.DtoMapping
 {
-    public static class Serializer 
+    public static class Mapper 
     {
         public static FigureDto FigureToDto(Figure figure) => new(figure.A, figure.B, figure.AmountMovesOfFigure, figure.Title, figure.Color);
 
@@ -31,5 +31,15 @@
             gameHandler.StartTime, 
             gameHandler.EndTime
         );
+
+        public static MoveOption DtoToMoveOption(MoveOptionDto moveOptionDto)
+        {
+            return moveOptionDto switch
+            {
+                ReplacementOptionDto replacementOptionDto => new ReplacementOption(Type.GetType(replacementOptionDto.SelectedFigureType) 
+                    ?? throw new InvalidOperationException($"cannot resolve type '{replacementOptionDto.SelectedFigureType}'")),
+                _ => throw new NotSupportedException( $"unknown MoveOptionDto type: {moveOptionDto.GetType().Name}")
+            };
+        }
     }
 }
