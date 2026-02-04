@@ -45,30 +45,35 @@ namespace Chess.Client.Cli
         {
             FigureDto?[,] field = BuildMatrix(figures);
             bool isBlackPlayer = (color == Color.Black);
+
             int indent = 2;
-            int startY = (isBlackPlayer) ? 0 : 7;
-            int incrementY = (isBlackPlayer) ? 1 : -1;
+            int startY = isBlackPlayer ? 0 : 7;
+            int incrementY = isBlackPlayer ? 1 : -1;
 
-            int startX = (isBlackPlayer) ? 7 : 0;
-            int incrementX = (isBlackPlayer) ? -1 : 1;
+            int startX = isBlackPlayer ? 7 : 0;
+            int incrementX = isBlackPlayer ? -1 : 1;
 
-            for (int y = startY; (isBlackPlayer) ? y < 8 : y >= 0; y += incrementY)
+            for (int y = startY; isBlackPlayer ? y < 8 : y >= 0; y += incrementY)
             {
-                for (int x = 0; x < indent; x++) Console.Write(" ");
+                for (int i = 0; i < indent; i++) Console.Write(" ");
                 Console.Write(y + 1);
-                for (int x = startX; (isBlackPlayer) ? x >= 0 : x < 8; x += incrementX)
+
+                for (int x = startX; isBlackPlayer ? x >= 0 : x < 8; x += incrementX)
                 {
+                    bool isDarkCell = (x + y) % 2 == 0;
                     FigureDto? f = field[x, y];
-                    if (f != null)
-                    {
-                        DrawCell(f.Title, f.Color);
-                    }
-                    else DrawCell();
+
+                    DrawCell(
+                        f,
+                        isDarkCell
+                    );
                 }
                 Console.WriteLine();
             }
-            for (int x = 0; x < indent + 1; x++) Console.Write(" ");
-            for (int x = startX; (isBlackPlayer) ? x >= 0 : x < 8; x += incrementX) Console.Write(" " + (char)('a' + x) + " ");
+
+            for (int i = 0; i < indent + 1; i++) Console.Write(" ");
+            for (int x = startX; isBlackPlayer ? x >= 0 : x < 8; x += incrementX)
+                Console.Write(" " + (char)('a' + x) + " ");
             Console.WriteLine();
         }
 
@@ -138,24 +143,38 @@ namespace Chess.Client.Cli
             };
         }
 
-        private void DrawCell(FigureType figure, Color color)
+
+        private void DrawCell(FigureDto? figure, bool isDarkCell)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write("[");
+            ConsoleColor lightCellBg = ConsoleColor.DarkCyan;
+            ConsoleColor darkCellBg  = ConsoleColor.DarkGray;
+            ConsoleColor whiteFigureFg = ConsoleColor.White;
+            ConsoleColor blackFigureFg = ConsoleColor.Black;
 
-            Console.ForegroundColor = color == Color.White ? ConsoleColor.White : ConsoleColor.Gray;
-            Console.Write(GetFigureSymbol(figure));
+            Console.BackgroundColor = isDarkCell ? darkCellBg : lightCellBg;
 
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write("]");
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.Write(" ");
+
+            if (figure != null)
+            {
+                Console.ForegroundColor =
+                    figure.Color == Color.White
+                        ? whiteFigureFg
+                        : blackFigureFg;
+
+                Console.Write(GetFigureSymbol(figure.Title));
+            }
+            else
+            {
+                Console.Write(" ");
+            }
+
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.Write(" ");
+
             Console.ResetColor();
         }
 
-        private void DrawCell()
-        {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write("[ ]");
-            Console.ResetColor();
-        }
     }
 }
