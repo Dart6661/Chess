@@ -33,7 +33,7 @@
             {
                 if (f != null && color != f.Color && f.CheckTake(x, y))
                 {
-                    List<(int x, int y)> cells = ChessAlgorithm.GetPath(f.A, f.B, x, y);
+                    List<(int x, int y)> cells = PathAlgorithm.GetPath(f.A, f.B, x, y);
                     if (cells.Count == 0 || cells.All(cell => field.GetCell(cell.x, cell.y) == null))
                         return false;
                 }
@@ -60,7 +60,7 @@
             {
                 if (f != null && figure.Color != f.Color && f.CheckTake(x, y))
                 {
-                    List<(int x, int y)> cells = ChessAlgorithm.GetPath(f.A, f.B, x, y);
+                    List<(int x, int y)> cells = PathAlgorithm.GetPath(f.A, f.B, x, y);
                     if (cells.Count == 0 || cells.All(cell => field.GetCell(cell.x, cell.y) == null || field.GetCell(cell.x, cell.y) == figure))
                         return false;
                 }
@@ -77,7 +77,7 @@
             {
                 if (f != null && figure.Color != f.Color && f.CheckTake(x, y) && f != field.GetCell(a, b))
                 {
-                    List<(int x, int y)> cells = ChessAlgorithm.GetPath(f.A, f.B, x, y);
+                    List<(int x, int y)> cells = PathAlgorithm.GetPath(f.A, f.B, x, y);
                     if (cells.Count == 0 || cells.All(cell => (field.GetCell(cell.x, cell.y) == null || field.GetCell(cell.x, cell.y) == figure) && (cell.x != a || cell.y != b)))
                         return false;
                 }
