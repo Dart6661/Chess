@@ -1,4 +1,4 @@
-﻿namespace Chess.Shared.DtoMapping
+﻿namespace Chess.Shared
 {
     public static class Mapper 
     {

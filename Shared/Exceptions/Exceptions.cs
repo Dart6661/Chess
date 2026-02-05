@@ -1,4 +1,4 @@
-﻿namespace Chess.Shared.DtoMapping
+﻿namespace Chess.Shared
 {
     public class DataTypeException(string message) : Exception(message);
 }

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Chess.Shared.DtoMapping
+namespace Chess.Shared
 {
     public record UserDataDto(string UserId, string? SessionId, Color? Color, string? OtherUserId);
 
