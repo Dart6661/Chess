@@ -39,7 +39,7 @@
 
         private void Move(Figure figure, int x, int y, params MoveOption[] moveOptions)
         {
-            MoveAction? moveAction = figure.CheckMovement(x, y, field);
+            MoveAction? moveAction = figure.GetMoveAction(x, y, field);
             moveAction?.ExecuteMove(false, [..moveOptions]);
         }
     }

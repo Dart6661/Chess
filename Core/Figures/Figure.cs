@@ -17,7 +17,7 @@ namespace Chess.Core
 
         public abstract bool CheckTake(int x, int y);
 
-        internal abstract MoveAction? CheckMovement(int x, int y, Field field);
+        internal abstract MoveAction? GetMoveAction(int x, int y, Field field);
 
         internal void RemoveFromPlayer() => Owner.RemoveFigure(this);
 

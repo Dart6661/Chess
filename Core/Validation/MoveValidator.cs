@@ -19,7 +19,7 @@
                 throw new InputException("invalid coordinates");
 
             Figure? figure1 = field.GetCell(a, b);
-            if (figure1 != null && figure1.Color == movingPlayerColor && figure1.CheckMovement(x, y, field) != null)
+            if (figure1 != null && figure1.Color == movingPlayerColor && figure1.GetMoveAction(x, y, field) != null)
                 return true;
             return false;
         }

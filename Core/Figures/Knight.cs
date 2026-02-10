@@ -19,7 +19,7 @@ namespace Chess.Core
             return take;
         }
 
-        internal override MoveAction? CheckMovement(int x, int y, Field field)
+        internal override MoveAction? GetMoveAction(int x, int y, Field field)
         {
             Figure? f = field.GetCell(x, y);
             Figure king = field.GetKing(Color);
